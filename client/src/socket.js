@@ -1,17 +1,14 @@
 import io from "socket.io-client";
 
 const socket = () => {
-  const client = io.connect("http://192.168.0.100:8000");
-  console.log("connecting,,,");
+  const client = io.connect("/");
   function registerMessageHandler(onMessageReceived) {
     client.on("message", (data) => {
       onMessageReceived(data);
     });
   }
 
-  client.on("disconnect", (event) => {
-    console.log("socket", event);
-  });
+  client.on("disconnect", (event) => {});
 
   const register = (name, callBack) => {
     client.emit("register", name, callBack);

@@ -11,7 +11,6 @@ const clientManager = () => {
 
       client.join(roomName, () => {
         let rooms = Object.keys(client.rooms);
-        console.log("rooms", rooms);
         socketInstance.to(roomName).emit("message", {
           type: "message:system:joined",
           message: `new user ${clientName} has joined to the ${roomName}`,
@@ -21,7 +20,6 @@ const clientManager = () => {
   };
 
   const disconnectHandler = (socketInstance, client) => {
-    console.log("disconnect handler", client.id);
     const clientName = (clients.get(client.id) || {}).clientName;
     clients.delete(client.id);
     if (clientName) {

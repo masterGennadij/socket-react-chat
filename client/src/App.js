@@ -24,13 +24,12 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [isRegistered, setRegistered] = useState(null);
   const [user, setUser] = useState(null);
+  const inputRef = useRef(null);
 
   const socketMessageHandler = useCallback(
     (data) => {
-      console.log(data);
       if (data?.type?.includes("message")) {
         const messageType = data.type.split(":")[1];
-        console.log(isRegistered, data.author);
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -56,8 +55,8 @@ function App() {
       socketClient.current.register(name, (user, error) => {
         if (error) {
           console.log("error", error);
+          return error;
         }
-        console.log(user.id);
         setRegistered(true);
         setUser(user.id);
       });
@@ -68,7 +67,6 @@ function App() {
   const sendMessageHandler = useCallback(() => {
     if (!messageValue) return;
     socketClient.current.sendMessage(messageValue);
-    setMessageVale("");
   }, [socketClient, messageValue]);
 
   const nameChangeHandler = useCallback(({ target }) => {
@@ -78,8 +76,6 @@ function App() {
   const messageChangeHandler = useCallback(({ target }) => {
     setMessageVale(target.value);
   }, []);
-
-  console.log(messageValue);
 
   return (
     <div className="App">
@@ -116,16 +112,14 @@ function App() {
           downButton
           dataSource={messages.map((item) => ({
             ...item,
-            position:
-              console.log(user, item) || user === item.author
-                ? "right"
-                : "left",
+            position: user === item.author ? "right" : "left",
           }))}
         />
         <Navbar
           center={
             <div>
               <Input
+                ref={inputRef}
                 placeholder="Type here..."
                 multiline={true}
                 onChange={messageChangeHandler}
