@@ -18,10 +18,6 @@ const {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.send({ express: "Hello From Express" });
-});
-
 io.on("connect", (client) => {
   console.log("connected client", client.id);
 
