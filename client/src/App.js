@@ -7,7 +7,7 @@ import socket from "./socket";
 // Components
 import ChatBox from "./components/ChatBox";
 
-const REACT_APP_GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const App = () => {
   const socketClient = useRef();
