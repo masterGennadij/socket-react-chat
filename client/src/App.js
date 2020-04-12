@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
-import { Input, Popup } from "react-chat-elements";
+import { Popup } from "react-chat-elements";
 import GoogleLogin from "react-google-login";
 import "react-chat-elements/dist/main.css";
 import socket from "./socket";
@@ -7,7 +7,7 @@ import socket from "./socket";
 // Components
 import ChatBox from "./components/ChatBox";
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const REACT_APP_GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const App = () => {
   const socketClient = useRef();
