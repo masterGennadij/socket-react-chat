@@ -13,6 +13,7 @@ const {
   connectHandler,
   disconnectHandler,
   sendMessageHandler,
+  sendTypingStateHandler,
 } = clientManger();
 
 app.use(bodyParser.json());
@@ -25,6 +26,10 @@ io.on("connect", (client) => {
 
   client.on("sendMessage", (...args) =>
     sendMessageHandler(io, client, ...args)
+  );
+
+  client.on("sendTypingState", (...args) =>
+    sendTypingStateHandler(io, client, ...args)
   );
 
   client.on("disconnect", () => {

@@ -1,10 +1,15 @@
 import io from "socket.io-client";
 
 const socket = () => {
-  const client = io.connect("/");
-  function registerMessageHandler(onMessageReceived) {
+  const client = io.connect("/", { forceNew: false });
+
+  function registerEventsHandlers({ onMessageReceived, onTypingsReceved }) {
     client.on("message", (data) => {
       onMessageReceived(data);
+    });
+
+    client.on("sendTypingClients", (data) => {
+      onTypingsReceved(data);
     });
   }
 
@@ -18,7 +23,11 @@ const socket = () => {
     client.emit("sendMessage", message, callBack);
   };
 
-  return { register, registerMessageHandler, sendMessage };
+  const sendTypingState = (isTyping, callBack) => {
+    client.emit("sendTypingState", isTyping, callBack);
+  };
+
+  return { register, registerEventsHandlers, sendMessage, sendTypingState };
 };
 
 export default socket;
