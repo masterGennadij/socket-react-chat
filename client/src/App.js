@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { Input, Popup } from "react-chat-elements";
+import GoogleLogin from "react-google-login";
 import "react-chat-elements/dist/main.css";
 import socket from "./socket";
 
 // Components
 import ChatBox from "./components/ChatBox";
 
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+
 const App = () => {
   const socketClient = useRef();
-  const [name, setName] = useState("");
   const [messages, setMessages] = useState([]);
   const [isRegistered, setRegistered] = useState(null);
   const [user, setUser] = useState(null);
@@ -41,9 +43,9 @@ const App = () => {
   }, [socketClient]);
 
   const registerHandler = useCallback(
-    (name) => {
-      if (!name) return;
-      socketClient.current.register(name, (user, error) => {
+    (userObject) => {
+      if (!userObject?.name) return;
+      socketClient.current.register(userObject, (user, error) => {
         if (error) {
           return error;
         }
@@ -74,33 +76,33 @@ const App = () => {
     [socketClient, typingUsers, user]
   );
 
-  const nameChangeHandler = useCallback(({ target }) => {
-    setName(target.value);
-  }, []);
+  const googleAuthHandler = useCallback(
+    (result) => {
+      if (result?.error) return;
+      if (result.profileObj) {
+        const { name, imageUrl } = result.profileObj;
+        registerHandler({ name, image: imageUrl });
+      }
+    },
+    [registerHandler]
+  );
 
   return (
     <>
       <Popup
         show={!isRegistered}
-        header="Enter name to join the chat"
+        header="Login with google to join the chat"
         text={
-          <div>
-            <Input
-              placeholder="Type here..."
-              value={name}
-              onChange={nameChangeHandler}
-              inputStyle={{ border: "1px solid #333" }}
-            />
-          </div>
+          <GoogleLogin
+            clientId={GOOGLE_CLIENT_ID}
+            buttonText="Login"
+            onSuccess={googleAuthHandler}
+            onFailure={googleAuthHandler}
+            cookiePolicy={"single_host_origin"}
+            className="full-width"
+            isSignedIn
+          />
         }
-        footerButtons={[
-          {
-            color: "white",
-            backgroundColor: "#4870df",
-            text: "Join",
-            onClick: () => registerHandler(name),
-          },
-        ]}
       />
       <ChatBox
         sendMessage={sendMessageHandler}

@@ -4,19 +4,32 @@ const clientManager = () => {
   const clients = new Map();
   const roomName = "chat";
 
-  const getClientName = (id) => (clients.get(id) || {}).clientName;
+  const getClientInfo = (id) => {
+    const client = clients.get(id) || {};
+    const { clientName, clientImage } = client;
 
-  const connectHandler = (socketInstance, client, clientName, callBack) => {
+    return {
+      clientName,
+      clientImage,
+    };
+  };
+
+  const connectHandler = (socketInstance, client, clientInfo, callBack) => {
     if (clients.get(client.id)) {
       callBack(null, "User has already registered");
     } else {
-      clients.set(client.id, { client, clientName, isTyping: false });
-      callBack({ id: client.id, name: clientName });
+      clients.set(client.id, {
+        client,
+        clientName: clientInfo.name,
+        clientImage: clientInfo.image,
+        isTyping: false,
+      });
+      callBack({ id: client.id, name: clientInfo.name });
 
       client.join(roomName, () => {
         socketInstance.to(roomName).emit("message", {
           type: "message:system:joined",
-          message: `User ${clientName} has joined to the ${roomName}`,
+          message: `User ${clientInfo.name} has joined to the ${roomName}`,
           id: uuid(),
         });
       });
@@ -24,7 +37,7 @@ const clientManager = () => {
   };
 
   const disconnectHandler = (socketInstance, client) => {
-    const clientName = getClientName(client.id);
+    const { clientName } = getClientInfo(client.id);
     clients.delete(client.id);
     if (clientName) {
       socketInstance.to(roomName).emit("message", {
@@ -54,7 +67,7 @@ const clientManager = () => {
   };
 
   const sendMessageHandler = (socketInstance, client, message) => {
-    const clientName = getClientName(client.id);
+    const { clientName, clientImage } = getClientInfo(client.id);
     if (clientName) {
       socketInstance.to(roomName).emit("message", {
         type: "message:text:new",
@@ -63,8 +76,7 @@ const clientManager = () => {
         author: client.id,
         authorName: clientName,
         id: uuid(),
-        avatar:
-          "https://api.adorable.io/avatars/80/abott@adorable.png" + client.id,
+        avatar: clientImage,
       });
     }
   };
